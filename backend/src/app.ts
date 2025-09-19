@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import productRoutes from "./routes/productRoutes";
 import salesRoutes from "./routes/salesRoutes";
+import transactionRoutes from "./routes/transactionRoute";
 import pool from './config/db';
 
 const app = express();
@@ -11,6 +12,7 @@ app.use(express.json());
 
 app.use("/products", productRoutes);
 app.use("/sales", salesRoutes);
+app.use("/transactions", transactionRoutes);
 app.get("/", (req, res) => {
   res.send("Sari-Sari Store API running with TypeScript 🚀");
 });

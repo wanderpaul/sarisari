@@ -159,5 +159,31 @@ router.put('/:id/revert', async (req, res) => {
 });
 
 
+router.post("/bulk", async (req, res) => {
+  const { products } = req.body;
+
+  if (!Array.isArray(products) || products.length === 0) {
+    return res.status(400).json({ error: "No products provided" });
+  }
+
+  try {
+    const values = products.map(
+      (p) => `('${p.name}', ${p.price}, ${p.quantity})`
+    );
+
+    const query = `
+      INSERT INTO products (name, price, quantity)
+      VALUES ${values.join(",")}
+      RETURNING *;
+    `;
+
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Failed to bulk insert products:", err);
+    res.status(500).json({ error: "Failed to save products" });
+  }
+});
+
 
 export default router;

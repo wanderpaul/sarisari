@@ -83,6 +83,18 @@ const sellProduct = async (id: number) => {
     await axios.put(`http://localhost:5000/products/${id}/sell`, {
       quantity: 1,
     });
+
+    // Find the product details for logging
+    const product = products.value.find((p) => p.id === id);
+    if (product) {
+      await axios.post("http://localhost:5000/sales/log", {
+        product_id: product.id,
+        quantity: 1,
+        price: product.price,
+        original_price: product.original_price,
+      });
+    }
+
     await fetchProducts();
   } catch (err: any) {
     alert(err.response?.data?.error || "Error selling product");
@@ -93,6 +105,11 @@ const revertProduct = async (id: number) => {
   try {
     await axios.put(`http://localhost:5000/products/${id}/revert`, {
       quantity: 1,
+    });
+
+    await axios.post("http://localhost:5000/sales/revert", {
+      product_id: id,
+      quantity: 1, // or however much was sold and reverted
     });
     await fetchProducts();
   } catch (err: any) {

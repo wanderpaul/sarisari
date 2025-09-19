@@ -46,68 +46,93 @@
 
     <!-- Add Item Modal -->
     <div
-      v-if="showModal"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
-    >
-      <div class="bg-white rounded-lg shadow-lg w-96 p-6 animate-fadeIn">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">Add New Product</h2>
-        <form @submit.prevent="addProduct">
-          <div class="mb-4">
-            <label class="block text-gray-700">Name</label>
-            <input
-              v-model="newProduct.name"
-              type="text"
-              class="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:ring-2 focus:ring-pink-300"
-              required
-            />
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700">Price (₱)</label>
-            <input
-              v-model.number="newProduct.price"
-              type="number"
-              step="0.01"
-              class="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:ring-2 focus:ring-pink-300"
-              required
-            />
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700">Quantity</label>
-            <input
-              v-model.number="newProduct.quantity"
-              type="number"
-              class="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:ring-2 focus:ring-pink-300"
-              required
-            />
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700">Original Price</label>
-            <input
-              v-model="newProduct.original_price"
-              type="number"
-              step="0.01"
-              class="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:ring-2 focus:ring-pink-300"
-              required
-            />
-          </div>
-          <div class="flex justify-end space-x-2">
-            <button
-              type="button"
-              @click="showModal = false"
-              class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="px-4 py-2 bg-gradient-to-r from-pink-300 to-purple-300 text-white rounded-lg shadow hover:opacity-90 transition"
-            >
-              Save
-            </button>
-          </div>
-        </form>
+  v-if="showModal"
+  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
+>
+  <div class="bg-white rounded-lg shadow-lg w-[600px] p-6 animate-fadeIn">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800">Add New Products</h2>
+
+    <form @submit.prevent="addProducts">
+      <div class="max-h-[400px] overflow-y-auto">
+        <table class="w-full border border-gray-200 rounded-lg">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="py-2 px-2 text-left">Name</th>
+              <th class="py-2 px-2 text-left">Price (₱)</th>
+              <th class="py-2 px-2 text-left">Quantity</th>
+              <th class="py-2 px-2 text-left">Original Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(p, index) in newProducts" :key="index">
+              <td>
+                <input
+                  v-model="p.name"
+                  type="text"
+                  class="w-full border border-gray-300 rounded p-1"
+                  placeholder="Product name"
+                />
+              </td>
+              <td>
+                <input
+                  v-model.number="p.price"
+                  type="number"
+                  step="0.01"
+                  class="w-full border border-gray-300 rounded p-1"
+                  placeholder="0.00"
+                />
+              </td>
+              <td>
+                <input
+                  v-model.number="p.quantity"
+                  type="number"
+                  class="w-full border border-gray-300 rounded p-1"
+                  placeholder="0"
+                />
+              </td>
+              <td>
+                <input
+                  v-model.number="p.original_price"
+                  type="number"
+                  step="0.01"
+                  class="w-full border border-gray-300 rounded p-1"
+                  placeholder="0.00"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-between items-center mt-4">
+        <button
+          type="button"
+          @click="addRow"
+          class="px-3 py-1 bg-blue-400 text-white rounded hover:bg-blue-500"
+        >
+          ➕ Add Row
+        </button>
+
+        <div class="space-x-2">
+          <button
+            type="button"
+            @click="showModal = false"
+            class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-gradient-to-r from-pink-300 to-purple-300 text-white rounded-lg shadow hover:opacity-90 transition"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
     <!-- Update Product Modal -->
     <div
@@ -150,37 +175,69 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 
+// Products table list
 const products = ref<any[]>([]);
 const showModal = ref(false);
 
-const newProduct = ref({
-  name: "",
-  price: 0,
-  quantity: 0,
-  original_price: 0,
-});
+// Multi-row add form (20 rows by default)
+const newProducts = ref<{ name: string; price: number; quantity: number; original_price: number }[]>(
+  Array.from({ length: 20 }, () => ({
+    name: "",
+    price: 0,
+    quantity: 0,
+    original_price: 0,
+  }))
+);
 
+// Fetch products for the table
 const fetchProducts = async () => {
   const res = await axios.get("http://localhost:5000/products");
   products.value = res.data;
 };
 
-const addProduct = async () => {
+// Add a new row in modal
+const addRow = () => {
+  newProducts.value.push({ name: "", price: 0, quantity: 0, original_price: 0 });
+};
+
+// Bulk add products
+const addProducts = async () => {
   try {
-    await axios.post("http://localhost:5000/products", newProduct.value);
+    const validProducts = newProducts.value.filter(
+      (p) => p.name.trim() !== "" && p.price > 0 && p.quantity > 0
+    );
+
+    if (validProducts.length === 0) {
+      alert("⚠ Please fill at least one product.");
+      return;
+    }
+
+    await axios.post("http://localhost:5000/products/bulk", { products: validProducts });
+
+    alert(`✅ Added ${validProducts.length} products successfully!`);
     showModal.value = false;
-    newProduct.value = { name: "", price: 0, quantity: 0, original_price: 0 };
+
+    // Reset modal rows
+    newProducts.value = Array.from({ length: 20 }, () => ({
+      name: "",
+      price: 0,
+      quantity: 0,
+      original_price: 0,
+    }));
+
+    // Refresh table
     fetchProducts();
-  } catch (error) {
-    console.error(error);
-    alert("❌ Failed to add product.");
+  } catch (err: any) {
+    console.error(err);
+    alert(err.response?.data?.error || "Something went wrong");
   }
 };
 
+// Update modal stuff
 const showUpdateModal = ref(false);
 const updateForm = ref({ id: null, name: "", price: 0, quantity: 0, original_price: 0 });
 
-const openUpdateModal = (product) => {
+const openUpdateModal = (product: any) => {
   updateForm.value = { ...product };
   showUpdateModal.value = true;
 };
