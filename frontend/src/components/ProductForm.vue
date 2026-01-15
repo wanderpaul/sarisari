@@ -109,7 +109,7 @@ const addProducts = async () => {
     }
 
     // call bulk insert API
-    await axios.post("http://localhost:5000/products/bulk", {
+    await axios.post(`${process.env.BASE_URL}/products/bulk`, {
       products: validProducts,
     });
 

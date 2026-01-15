@@ -74,20 +74,20 @@ import axios from "axios";
 const products = ref<any[]>([]);
 
 const fetchProducts = async () => {
-  const res = await axios.get("http://localhost:5000/products");
+  const res = await axios.get(`${process.env.BASE_URL}/products`);
   products.value = res.data;
 };
 
 const sellProduct = async (id: number) => {
   try {
-    await axios.put(`http://localhost:5000/products/${id}/sell`, {
+    await axios.put(`${process.env.BASE_URL}/products/${id}/sell`, {
       quantity: 1,
     });
 
     // Find the product details for logging
     const product = products.value.find((p) => p.id === id);
     if (product) {
-      await axios.post("http://localhost:5000/sales/log", {
+      await axios.post(`${process.env.BASE_URL}/sales/log`, {
         product_id: product.id,
         quantity: 1,
         price: product.price,
@@ -103,11 +103,11 @@ const sellProduct = async (id: number) => {
 
 const revertProduct = async (id: number) => {
   try {
-    await axios.put(`http://localhost:5000/products/${id}/revert`, {
+    await axios.put(`${process.env.BASE_URL}/products/${id}/revert`, {
       quantity: 1,
     });
 
-    await axios.post("http://localhost:5000/sales/revert", {
+    await axios.post(`${process.env.BASE_URL}/sales/revert`, {
       product_id: id,
       quantity: 1, // or however much was sold and reverted
     });

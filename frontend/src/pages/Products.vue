@@ -191,7 +191,7 @@ const newProducts = ref<{ name: string; price: number; quantity: number; origina
 
 // Fetch products for the table
 const fetchProducts = async () => {
-  const res = await axios.get("http://localhost:5000/products");
+  const res = await axios.get(`${process.env.BASE_URL}/products`);
   products.value = res.data;
 };
 
@@ -212,7 +212,7 @@ const addProducts = async () => {
       return;
     }
 
-    await axios.post("http://localhost:5000/products/bulk", { products: validProducts });
+    await axios.post(`${process.env.BASE_URL}/products/bulk`, { products: validProducts });
 
     alert(`✅ Added ${validProducts.length} products successfully!`);
     showModal.value = false;
@@ -244,7 +244,7 @@ const openUpdateModal = (product: any) => {
 
 const updateProduct = async () => {
   try {
-    await axios.put(`http://localhost:5000/products/${updateForm.value.id}`, updateForm.value);
+    await axios.put(`${process.env.BASE_URL}/products/${updateForm.value.id}`, updateForm.value);
     await fetchProducts();
     showUpdateModal.value = false;
   } catch (err) {

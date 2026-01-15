@@ -62,7 +62,7 @@ const product = ref({
 
 const addProduct = async () => {
   try {
-    await axios.post("http://localhost:5000/products", product.value);
+    await axios.post(`${process.env.BASE_URL}/products`, product.value);
     alert("✅ Product added successfully!");
     product.value = { name: "", price: 0, quantity: 0 }; // reset form
   } catch (error) {

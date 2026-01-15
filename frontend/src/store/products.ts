@@ -7,11 +7,11 @@ export const useProductsStore = defineStore('products', {
   }),
   actions: {
     async fetchProducts() {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/products`)
+      const res = await axios.get(`${process.env.BASE_URL}/products`)
       this.products = res.data
     },
     async addProduct(product: { name: string, price: number, quantity: number }) {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/products`, product)
+      const res = await axios.post(`${process.env.BASE_URL}/products`, product)
       this.products.push(res.data)
     }
   }

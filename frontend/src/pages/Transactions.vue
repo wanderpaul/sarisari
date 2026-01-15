@@ -101,7 +101,7 @@ const transaction = ref<any>(null);
 
 const fetchTodayTransaction = async () => {
   try {
-    const { data } = await axios.get("http://localhost:5000/transactions/today");
+    const { data } = await axios.get(`${process.env.BASE_URL}/transactions/today`);
     if (data) {
       transaction.value = data;
       transactionStarted.value = true;
@@ -140,7 +140,7 @@ onBeforeRouteLeave((to, from, next) => {
 
 // Start a new transaction
 const startTransaction = async () => {
-  const res = await axios.get("http://localhost:5000/products");
+  const res = await axios.get(`${process.env.BASE_URL}/products`);
   products.value = res.data.map((p: any) => ({
     ...p,
     sold: 0, // reset sold count for transaction
@@ -181,7 +181,7 @@ const totalProfit = computed(() =>
 const saveTransaction = async () => {
   const today = new Date().toISOString().slice(0, 10);
   try {
-    await axios.post("http://localhost:5000/transactions", {
+    await axios.post(`${process.env.BASE_URL}/transactions`, {
       date: today,
       grand_total: grandTotal.value,
       total_profit: totalProfit.value,

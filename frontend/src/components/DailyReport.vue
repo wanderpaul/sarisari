@@ -63,7 +63,7 @@ const totals = ref<any | null>(null);
 
 const fetchDailyReport = async () => {
   try {
-    const { data } = await axios.get("http://localhost:5000/sales/daily-report", {
+    const { data } = await axios.get(`${process.env.BASE_URL}/sales/daily-report`, {
       params: { date: date.value },
     });
     report.value = data.rows;
